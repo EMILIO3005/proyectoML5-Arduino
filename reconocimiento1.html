@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reconocimiento imagenes</title>
+  <link rel="stylesheet" href="./styles/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>Reconocimiento de imagenes - "Image Classifier"</h2>
+    <h4>Utilizando un modelo ya entrenado</h4>
+
+    <hr>
+    <div id="ml5-result"></div>
+  </div>
+  <script>
+    console.log("ml5 version:", ml5.version);
+
+    let classifier;
+    let img;
+    let label;
+    let confidence;
+
+    async function setup() {
+      // 1. Esperamos a que cargue el modelo 
+      classifier = await ml5.imageClassifier("MobileNet");
+
+      // 2. Cargamos la imagen (p5.js v2 usa async/await)
+      img = await loadImage('./images/animal2.jpg');
+
+      // 3. Creamos el lienzo y lo asignamos al ID correcto
+      let lienzo = createCanvas(400, 400);
+      lienzo.parent('ml5-result');
+
+      // 4. Dibujamos la imagen ("height" )
+      image(img, 0, 0, width, height);
+
+      // 5. Clasificamos la imagen
+      classifier.classify(img, gotResults);
+    }
+
+    function gotResults(results) {
+      console.log(results);
+
+      fill(255);
+      stroke(0);
+      strokeWeight(2); // Un poco de borde para que el texto blanco se lea bien
+      textSize(18);
+      
+      label = results[0].label;
+      confidence = nf(results[0].confidence * 100, 2, 2)
+
+      text(label, 5, 20);
+      text(`${confidence}`, 320, 385);
+    }
+  </script>
+</body>
+</html>

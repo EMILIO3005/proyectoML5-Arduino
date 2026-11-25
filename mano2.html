@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+</head>
+<body>
+
+  <div id="resultados"></div>
+  <script>
+
+    const resultados = document.querySelector('#resultados')
+    //Objetos
+    let handPose // Modelo ML5
+    let video // Camara
+    let hands = []   //Manos (0, 1, 2)
+
+
+    let distancia //Distancia
+
+
+    async function setup() {
+      handPose = await ml5.handPose()
+
+      /* LQ > HQ > HD > FHD > 2K > 4K > 8K */
+      createCanvas(640, 480)  //HQ (Alta calidad)
+
+
+      //Deteccion del video (camara)
+      video = createCapture(VIDEO)
+      video.size(640, 480)
+      video.hide()
+
+      //(fuenteVideo, callback, function)
+      handPose.detectStart(video, gotHands)
+    }
+
+    function draw() {
+      image(video, 0, 0, width, height)
+
+      //El renderizado se realiza cuando tienes una mano detectada
+      //hands contiene la informacion de cada dedo y su ubicacion en 2D y 3D
+      if(hands.length > 0){
+        //index finger (dedo indice)
+        let finger = hands[0].index_finger_tip
+        //thumb (Dedo pulgar)
+        let thumb = hands[0].thumb_tip
+
+        resultados.innerHTML = `[Eje X] = indice en X: ${finger} - Pulgar en X: ${thumb}`
+
+
+        //Dibujar un circulo entre los dedos(indice y pulgar)
+        let centerX = (finger.x + thumb.x) / 2
+        let centerY = (finger.y + thumb.y) / 2
+        distancia = dist(finger.x, finger.y, thumb.x, thumb.y)
+
+
+        //Pintar el circulo
+        //R - G - B - Alpha
+        //Alpha(0 transparente - 255 sólido)
+        fill(0, 255, 0, 200)
+        stroke(0)
+        strokeWeight(2)
+        circle(centerX, centerY, distancia);
+      }
+    }
+
+    function gotHands(results){
+      hands = results
+    }
+  </script>
+  
+</body>
+</html>

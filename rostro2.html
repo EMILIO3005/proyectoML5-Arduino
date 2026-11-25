@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+</head>
+<body>
+  <script>
+
+    let faceMesh
+    let video
+    let faces = []
+    let options = {maxFaces:1, refineLandmarks: false, flipHorizontal: false}
+
+
+    async function setup() {
+      
+      createCanvas(640, 480)
+
+      faceMesh = await ml5.faceMesh(options)
+
+      //Creacion del video
+      video = createCapture(VIDEO)
+      video.size(640, 480)
+      video.hide()
+
+      faceMesh.detectStart(video, gotFaces)
+
+    }
+
+    function draw(){
+      image(video, 0, 0, width, height)
+
+
+      if (faces.length > 0){
+        let face = faces[0]
+        noFill()
+        strokeWeight(2)
+
+
+        if (face.lips) {
+          stroke(0, 255, 0);
+          rect(face.lips.x, face.lips.y, face.lips.width, face.lips.height);
+        }
+
+        // Rectángulo para el ojo izquierdo (Cian)
+        if (face.leftEye) {
+          stroke(0, 255, 255);
+          rect(face.leftEye.x, face.leftEye.y, face.leftEye.width, face.leftEye.height);
+        }
+
+        // Rectángulo para el ojo derecho (Magenta)
+        if (face.rightEye) {
+          stroke(255, 0, 255);
+          rect(face.rightEye.x, face.rightEye.y, face.rightEye.width, face.rightEye.height);
+        }
+
+      }
+      drawPartsKeypoints()
+        
+    }
+
+    function drawPartsKeypoints(){
+
+      if (faces.length > 0) {
+        let face = faces[0];
+        noStroke();
+
+        // Dibujar puntos del ojo izquierdo
+        if (face.leftEye) {
+          fill(0, 255, 255);
+          for (let i = 0; i < face.leftEye.keypoints.length; i++) {
+            let pt = face.leftEye.keypoints[i];
+            circle(pt.x, pt.y, 4);
+          }
+        }
+
+        // Dibujar puntos del ojo derecho
+        if (face.rightEye) {
+          fill(255, 0, 255);
+          for (let i = 0; i < face.rightEye.keypoints.length; i++) {
+            let pt = face.rightEye.keypoints[i];
+            circle(pt.x, pt.y, 4);
+          }
+        }
+      }
+    }
+
+    function gotFaces(results){
+      faces = results 
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reconocimiento imagenes</title>
+  <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Reconocimiento de imagenes - "Image Classifier"</h2>
+    <h4>Utilizando un modelo ya entrenado</h4>
+    
+    <hr />
+    <div id="ml5-result"></div>
+  </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
+    <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+    <script>
+      let classifier  //ML5
+      let clearButton //Reiniciar canvas
+      let resultsP    //Espacio mostrar resultado
+      let lienzo      //Lienzo donde dibujamos
+      let label
+      let confidence
+
+
+      //Cargar el modelo
+      function preload(){
+        classifier = ml5.imageClassifier('DoodleNet')
+      }
+
+      //Configuracion
+      function setup(){
+        //Mientras mas grande el lienzo, mas complejo será el análisis
+        lienzo = createCanvas(280, 280)
+        lienzo.parent('ml5-result')
+        background(255)
+        classifier.classifyStart(lienzo, gotResult)
+
+
+        //Mostrar resultado en la pantalla
+        resultsP = createP('label')   //Crea un <p>
+        clearButton = createButton('Limpiar') //Crea un boton
+        clearButton.mousePressed(clearCanvas)
+
+        resultsP.parent('ml5-result')
+        clearButton.parent('ml5-result')
+      }
+
+      //Reinicia el canvas
+      function clearCanvas(){
+        background(255)
+      }
+
+      //Dibujar a mano alzada en el lienzo
+      function draw(){
+        //Especificar el grosor de la linea
+        strokeWeight(16)
+        stroke(0)
+        if (mouseIsPressed){
+
+          //p = pressed -> precionar
+          line(pmouseX, pmouseY, mouseX, mouseY)
+        }
+      }
+
+      function gotResult(results){
+        //console.log(results)
+
+        let label = results[0].label
+        let confidence = results[0].confidence
+        resultsP.html(`${label} ${nf(confidence, 0, 2)}`)
+      }
+    </script>
+</body>
+</html>

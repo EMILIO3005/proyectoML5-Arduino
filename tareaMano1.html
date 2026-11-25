@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+    <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+</head>
+<body>
+
+  <div id="resultados"></div>
+  <script>
+    const resultados = document.querySelector('#resultados')
+
+    let handPose 
+    let video
+    let hands = []
+
+    let distancia
+
+
+    async function setup() {
+      handPose = await ml5.handPose()
+
+
+      createCanvas(640, 480)
+
+
+      video = createCapture(VIDEO)
+      video.size(640, 480)
+      video.hide()
+      handPose.detectStart(video, gotHands)
+    }
+
+    function draw(){
+      image(video, 0, 0, width, height)
+
+      if (hands.length > 0 ){
+        let finger = hands[0].index_finger_tip
+
+        resultados.innerHTML = `[Eje X] = indice en X: ${finger}`
+
+        fill(0, 255, 0, 200)
+        stroke(0)
+        strokeWeight(2)
+        circle(finger.x, finger.y, 30);
+      }
+    }
+
+    function gotHands(results){
+      hands = results
+    }
+  </script>
+</body>
+</html>
